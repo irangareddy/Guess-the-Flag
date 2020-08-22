@@ -10,60 +10,67 @@ import SwiftUI
 
 struct ContentView: View {
     
-    let gradientStyles = ["Linear", "Radial", "Angular"]
+    @State private var countries = ["BHUTAN","BRAZIL","CAMBODIA","INDIA","IRELAND","ITALY","MICRONESIA","SLOVAKIA","SUDAN","SWEDEN","US","VIETNAM"].shuffled()
     
-    @State private var gradientIndex = 2
-    @State private var showAlert = false
+    @State private var correctAnswer = Int.random(in: 0...2)
     
+    
+    @State private var showingScore = false
+    @State private var scoreTitle = ""
+
     var body: some View {
         ZStack {
-            if gradientIndex == 0 {
-                LinearGradient(gradient: Gradient(colors: [Color(#colorLiteral(red: 0.03529411765, green: 0.7764705882, blue: 0.9764705882, alpha: 1)), Color(#colorLiteral(red: 0.01568627451, green: 0.3647058824, blue: 0.9137254902, alpha: 1))]), startPoint: .topLeading, endPoint: .bottomTrailing)
-                    .edgesIgnoringSafeArea(.all)
-            } else if gradientIndex == 1 {
-                RadialGradient(gradient: Gradient(colors: [Color(#colorLiteral(red: 0.9333333333, green: 0.6823529412, blue: 0.7921568627, alpha: 1)), Color(#colorLiteral(red: 0.5803921569, green: 0.7333333333, blue: 0.9137254902, alpha: 1))]), center: .center, startRadius: 5, endRadius: 500)
-                    .edgesIgnoringSafeArea(.all)
-            } else {
-                AngularGradient(gradient: Gradient(colors: [Color(#colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)), Color(#colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1))]), center: .bottomTrailing)
-                    .edgesIgnoringSafeArea(.all)
-            }
-           
-            VStack {
-                Section(header: Text("Select Gradient Style").padding()) {
-                                        Picker("Gradient Styles", selection: $gradientIndex) {
-                                            ForEach(0..<gradientStyles.count){
-                                                Text("\(gradientStyles[$0])")
-                                            }
-                         }.pickerStyle(SegmentedPickerStyle())
-                }.padding(8)
-                Spacer()
-                Button(action: {
-                    if gradientIndex < 2 {
-                        gradientIndex+=1
-                    } else {
-                        gradientIndex = 0
+            RadialGradient(gradient: Gradient(colors: [Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)), Color(#colorLiteral(red: 0.5803921569, green: 0.7333333333, blue: 0.9137254902, alpha: 1))]), center: .center, startRadius: 5, endRadius: 500)
+                .edgesIgnoringSafeArea(.all)
+
+            VStack(spacing: 30) {
+                    VStack(spacing: 10) {
+                        Text("Tap the Flag of")
+                        Text(countries[correctAnswer])
+                            .bold()
                     }
-                }, label: {
-                    Text("Change Background")
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                })
-            
-                Image("INDIA")
-                
-                Spacer()
-                Button("Show Alert") {
-                    self.showAlert.toggle()
-                }.alert(isPresented: $showAlert, content: {
-                    Alert(title: Text("Alert"), message: Text("This is a alert message"), dismissButton: .default(Text("Cancel")))
-                })
-            }
-                
-            
-            
-        }
+                    
+                    
+                    ForEach(0..<3) { number in
+                        Button(action: {
+                            self.flagTapped(number)
+                            
+                        }, label: {
+                            Image(countries[number])
+                                .renderingMode(.original)
+                                .frame(height: 180, alignment: .center)
+                                .scaledToFill()
+                                .clipShape(RoundedRectangle(cornerRadius: 16.0))
+                                .shadow(color: Color.black.opacity(0.17), radius: 10)
+                                
+                        })
+                    }
+                }
+        }.alert(isPresented: $showingScore) {
+            Alert(title: Text(scoreTitle), message: Text("Your score is ???"), dismissButton: .default(Text("Continue")) {
+                print("ss")
+            })
+    }
+        
+        
         
     }
+    
+    func flagTapped(_ number: Int) {
+        if number == correctAnswer {
+            scoreTitle = "Correct"
+        } else {
+            scoreTitle = "Wrong"
+        }
+        
+        showingScore = true
+    }
+    
+    func askQuetion() {
+        countries.shuffled()
+        correctAnswer = Int.random(in: 0...2)
+    }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
