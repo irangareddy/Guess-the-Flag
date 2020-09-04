@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct ContentView: View {
     
     @State private var countries = ["BHUTAN","BRAZIL","CAMBODIA","INDIA","IRELAND","ITALY","MICRONESIA","SLOVAKIA","SUDAN","SWEDEN","US","VIETNAM"].shuffled()
@@ -19,6 +18,7 @@ struct ContentView: View {
     @State private var scoreTitle = ""
     @State private var score = 0
     @State private var storyMessage = ""
+    @State private var rotationAmount = 0
 
     var body: some View {
         ZStack {
@@ -36,14 +36,23 @@ struct ContentView: View {
                     ForEach(0..<3) { number in
                         Button(action: {
                             self.flagTapped(number)
-                            
                         }, label: {
                             Image(countries[number])
                                 .renderingMode(.original)
                                 .frame(height: 180, alignment: .center)
                                 .scaledToFill()
                                 .clipShape(RoundedRectangle(cornerRadius: 16.0))
+                                .rotation3DEffect(
+                                    .degrees(number == correctAnswer ? Double(rotationAmount) : 0.0),
+                                    axis: (x: 0.0, y: 1.0, z: 0.0)
+                                )
                                 .shadow(color: Color.black.opacity(0.17), radius: 10)
+                                .opacity(showingScore && (number != correctAnswer) ? 0.25 : 1)
+                                
+                                
+                                
+                                
+                            
                                 
                         })
                     }
@@ -60,15 +69,32 @@ struct ContentView: View {
     
     func flagTapped(_ number: Int) {
         if number == correctAnswer {
-            scoreTitle = "Correct"
-            score+=1
-            storyMessage = "Your Score is " + String(score)
+            withAnimation(
+                Animation.spring()
+            ) {
+                rotationAmount+=360
+                    
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                scoreTitle = "Correct"
+                score+=1
+                storyMessage = "Your Score is " + String(score)
+            }
+            
         } else {
-            scoreTitle = "Wrong"
-            storyMessage = "That's is a Flag of " + countries[number]
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                scoreTitle = "Wrong"
+                storyMessage = "That's is a Flag of " + countries[number]
+            }
+           
         }
         
-        showingScore = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showingScore = true
+        }
+        
+        
     }
     
     func askQuetion() {
